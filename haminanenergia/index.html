@@ -3,24 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pauhu × Haminan Energia — Compliance-first AI Layer</title>
+  <title>Pauhu × Hamina Energia — Compliance-first AI Layer</title>
   <meta name="description" content="Live demo: data in, money saved, system awake. EU AI Act compliant.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main>
+    <!-- Header (NO sign-in/out buttons) -->
     <header class="hdr">
       <div class="brandbox">
-        <div class="logo"><link rel="icon" href="/assets/pauhu.ai_brand_mark_nega.png" type="image/png" /></div>
-        <div class="tenant">× Haminan Energia</div>
+        <div class="logo">PAUHU</div>
+        <div class="tenant">× Hamina Energia</div>
       </div>
       <div class="hdr-right">
         <div class="badge" id="healthBadge">Status: <span class="dot dot-warn"></span> Checking…</div>
-        <button id="loginBtn" class="btn pri">Sign in</button>
-        <button id="logoutBtn" class="btn ghost" style="display:none">Sign out</button>
       </div>
     </header>
 
+    <!-- Hero -->
     <section class="hero card">
       <div>
         <h1>Compliance-first AI layer for energy operations</h1>
@@ -31,17 +31,18 @@
         </div>
       </div>
       <ul class="kpilist">
-        <li><span class="kpi">EU‑hosted</span></li>
+        <li><span class="kpi">EU-hosted</span></li>
         <li><span class="kpi">AI Act ready</span></li>
-        <li><span class="kpi">Cloud‑agnostic</span></li>
+        <li><span class="kpi">Cloud-agnostic</span></li>
       </ul>
     </section>
 
+    <!-- Demo (Demo Mode default ON) -->
     <section id="demo" class="card">
       <div class="card-h">
         <h2>Live demo</h2>
         <label class="switch">
-          <input type="checkbox" id="demoMode">
+          <input type="checkbox" id="demoMode" checked>
           <span>Demo mode (mock responses if API is offline)</span>
         </label>
       </div>
@@ -78,6 +79,7 @@
       </div>
     </section>
 
+    <!-- Advanced -->
     <section id="advanced" class="card">
       <h2>Advanced agents</h2>
       <div class="grid2">
@@ -100,19 +102,20 @@
         </div>
         <div class="mod">
           <h3>Explainer</h3>
-          <p>Plain‑English explanation for optimization decisions.</p>
+          <p>Plain-English explanation for optimization decisions.</p>
           <label>question <input id="explainQ" value="Why did we shift load at 02:00?"></label>
           <button class="btn" onclick="getExplanation()">Explain</button>
         </div>
       </div>
     </section>
 
+    <!-- Footer -->
     <footer class="ft">
       <span class="logo">PAUHU.AI</span>
-      <span class="muted">EU‑hosted • Compliance‑first • Cloud‑agnostic</span>
+      <span class="muted">EU-hosted • Compliance-first • Cloud-agnostic</span>
     </footer>
   </main>
-  <script src="auth.js"></script>
+  <!-- NO auth.js -->
   <script src="script.js"></script>
 </body>
 </html>
