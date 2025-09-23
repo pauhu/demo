@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pauhu × Hamina Energia — Compliance-first AI Layer</title>
+  <meta name="description" content="Live demo: data in, money saved, system awake. EU AI Act compliant.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header class="hdr">
+      <div class="brandbox">
+        <div class="logo">pauhu</div>
+        <div class="tenant">× Hamina Energia</div>
+      </div>
+      <div class="hdr-right">
+        <div class="badge" id="healthBadge">Status: <span class="dot dot-warn"></span> Checking…</div>
+      </div>
+    </header>
+
+    <section class="hero card">
+      <div>
+        <h1>Compliance-first AI layer for energy operations</h1>
+        <p class="lead">Three clicks show it all: <strong>data in</strong>, <strong>money saved</strong>, <strong>system awake</strong>. Runs locally in Hamina, EU data stays in EU.</p>
+        <div class="ctas">
+          <a href="#demo" class="btn pri">Run the demo</a>
+          <a href="#advanced" class="btn">Advanced agents</a>
+        </div>
+      </div>
+      <ul class="kpilist">
+        <li><span class="kpi">EU-hosted</span></li>
+        <li><span class="kpi">AI Act ready</span></li>
+        <li><span class="kpi">Cloud-agnostic</span></li>
+      </ul>
+    </section>
+
+    <section id="demo" class="card">
+      <div class="card-h">
+        <h2>Live demo</h2>
+        <input type="checkbox" id="demoMode" checked style="display:none">
+      </div>
+
+      <div class="grid3">
+        <div class="mod">
+          <h3>Usage Monitor</h3>
+          <p>Push meter/substation data into the API.</p>
+          <label>meter_id <input id="meterId" value="hmn-001"></label>
+          <label>kWh <input id="kwh" value="12.5" type="number" step="0.1"></label>
+          <button class="btn pri" onclick="sendUsage()">Send consumption</button>
+        </div>
+
+        <div class="mod">
+          <h3>Cost Optimizer</h3>
+          <p>Recommendations for shifting load & storage.</p>
+          <label>window_id <input id="windowId" value="pilot-window-1"></label>
+          <button class="btn pri" onclick="getOptimization()">Get recommendation</button>
+          <button class="btn ghost" onclick="showOptimizerRequest()">Show AI request</button>
+          <pre id="optReq">{}</pre>
+        </div>
+
+        <div class="mod">
+          <h3>Reliability Monitor</h3>
+          <p>Traffic light status of the service.</p>
+          <button class="btn" onclick="checkHealth()">Check health</button>
+        </div>
+      </div>
+
+      <div class="outwrap">
+        <div class="outhead">
+          <span>Response</span>
+          <span class="muted" id="ts"></span>
+        </div>
+        <pre id="output">{}</pre>
+      </div>
+    </section>
+
+    <!-- ROI + Outage Drill + Integration Plan -->
+    <section class="card">
+      <div class="grid3">
+        <div class="mod">
+          <h3>€ Savings Today</h3>
+          <p>Show value now. Uses Finnish spot tariffs and the recommended shift.</p>
+          <label>Off-peak €/MWh <input id="priceOff" type="number" step="1" value="2"></label>
+          <label>Peak €/MWh     <input id="pricePeak" type="number" step="1" value="50"></label>
+          <label>Shifted kWh     <input id="shiftKwh" type="number" step="10" value="3000"></label>
+          <button class="btn pri" onclick="calcSavings()">Calculate</button>
+          <pre id="savingsOut">{}</pre>
+        </div>
+
+        <div class="mod">
+          <h3>Outage Drill</h3>
+          <p>Simulate a feeder trip. Reliability stays green, event is logged.</p>
+          <label>Feeder ID <input id="feederId" value="FEEDER-A12"></label>
+          <button class="btn" onclick="triggerOutage()">Trigger outage drill</button>
+          <pre id="outageOut">{}</pre>
+        </div>
+
+        <div class="mod">
+          <h3>Integration Plan</h3>
+          <p>We only need:</p>
+          <ul>
+            <li><code>GET /grid/health</code> → { status: green|amber|red }</li>
+            <li><code>POST /grid/usage</code> → { t, meter_id, kwh }</li>
+          </ul>
+          <p>Optional:</p>
+          <ul>
+            <li><code>GET /tariff/today</code> → { peak_eur_mwh, offpeak_eur_mwh }</li>
+          </ul>
+          <p>Data stays in Finland. We deploy inside your boundary or behind your API gateway.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="advanced" class="card">
+      <h2>Advanced agents</h2>
+      <div class="grid2">
+        <div class="mod">
+          <h3>Security Scanner</h3>
+          <p>Scan API surface for common vulnerabilities.</p>
+          <label>target <input id="secTarget" value="public"></label>
+          <button class="btn" onclick="runSecurityScan()">Run scan</button>
+        </div>
+        <div class="mod">
+          <h3>Compliance Monitor</h3>
+          <p>EU AI Act report: disclosures, logs, traces.</p>
+          <label>scope <input id="compScope" value="ai"></label>
+          <button class="btn" onclick="getCompliance()">Get report</button>
+          <button class="btn ghost" onclick="showComplianceRequest()">Show AI request</button>
+          <pre id="compReq">{}</pre>
+        </div>
+        <div class="mod">
+          <h3>Backup Service</h3>
+          <p>DR drill without touching production.</p>
+          <button class="btn" onclick="runBackupDrill()">Start DR drill</button>
+        </div>
+        <div class="mod">
+          <h3>Explainer</h3>
+          <p>Plain‑language explanation for optimization decisions.</p>
+          <label>question <input id="explainQ" value="Why did we shift load at 02:00?"></label>
+          <button class="btn" onclick="getExplanation()">Explain</button>
+          <button class="btn ghost" onclick="showExplainerRequest()">Show AI request</button>
+          <pre id="expReq">{}</pre>
+        </div>
+      </div>
+    </section>
+
+    <footer class="ft">
+      <span class="logo">pauhu</span>
+      <span class="muted">EU‑hosted • Compliance‑first • Cloud‑agnostic</span>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
