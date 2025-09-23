@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pauhu × Hamina Energia — Cost & Compliance Demo</title>
+  <meta name="description" content="Only what saves money or prevents fines.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="/assets/pauhu.ai_brand_mark_nega.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <main class="shell">
+    <header class="hdr card">
+      <div class="brand">
+        <img class="logo" src="https://raw.githubusercontent.com/pauhu/demo/main/assets/pauhu.ai_logo_nega.png" alt="pauhu logo">
+        <div class="tenant">× Hamina Energia</div>
+      </div>
+      <div class="badge" id="healthBadge">Status: <span class="dot dot-warn"></span> Checking…</div>
+    </header>
+
+    <section class="hero card">
+      <h1>Money saved. Fines avoided.</h1>
+      <p class="lead">Only the outcomes that matter today. Demo mode uses mock data; production connects to your endpoints.</p>
+    </section>
+
+    <section class="grid">
+      <!-- ROI -->
+      <div class="mod card">
+        <h3>€ Savings Today</h3>
+        <p class="muted">Uses Finnish spot prices (prefilled) and the recommended shift.</p>
+        <div class="row">
+          <label>Off-peak €/MWh <input id="priceOff" type="number" step="1" value="2"></label>
+          <label>Peak €/MWh <input id="pricePeak" type="number" step="1" value="50"></label>
+          <label>Shifted kWh <input id="shiftKwh" type="number" step="10" value="3000"></label>
+        </div>
+        <div class="actions">
+          <button class="btn pri" onclick="calcSavings()">Calculate</button>
+          <span id="previewSavings" class="preview"></span>
+        </div>
+        <details>
+          <summary>Show calculation JSON</summary>
+          <pre id="savingsOut">{}</pre>
+        </details>
+      </div>
+
+      <!-- Optimizer -->
+      <div class="mod card">
+        <h3>Cost Optimizer (AI)</h3>
+        <p class="muted">Optimization schedule that reduces €/MWh spend.</p>
+        <label>window_id <input id="windowId" value="pilot-window-1"></label>
+        <div class="actions">
+          <button class="btn pri" onclick="getOptimization()">Get recommendation</button>
+          <button class="btn ghost" onclick="showOptimizerRequest()">Show AI request</button>
+          <span id="previewOpt" class="preview"></span>
+        </div>
+        <details>
+          <summary>Show full response</summary>
+          <pre id="outputOpt">{}</pre>
+        </details>
+      </div>
+
+      <!-- Compliance -->
+      <div class="mod card">
+        <h3>Compliance Monitor (AI)</h3>
+        <p class="muted">EU AI Act mapping & audit JSON — prevents fines.</p>
+        <label>scope <input id="compScope" value="ai"></label>
+        <div class="actions">
+          <button class="btn pri" onclick="getCompliance()">Get report</button>
+          <button class="btn ghost" onclick="showComplianceRequest()">Show AI request</button>
+          <span id="previewComp" class="preview"></span>
+        </div>
+        <details>
+          <summary>Show full response</summary>
+          <pre id="compOut">{}</pre>
+        </details>
+      </div>
+
+      <!-- Outage Drill -->
+      <div class="mod card">
+        <h3>Outage Drill → Log & Stay Green</h3>
+        <p class="muted">Simulated feeder trip: service remains available; event is logged for audit.</p>
+        <label>Feeder ID <input id="feederId" value="FEEDER-A12"></label>
+        <div class="actions">
+          <button class="btn" onclick="triggerOutage()">Trigger outage drill</button>
+          <span id="previewOutage" class="preview"></span>
+        </div>
+        <details>
+          <summary>Show full response</summary>
+          <pre id="outageOut">{}</pre>
+        </details>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Integration (what we need from you)</h3>
+      <ul class="needs">
+        <li><code>GET /grid/health</code> → <span class="hint">{ status: green|amber|red }</span></li>
+        <li><code>POST /grid/usage</code> → <span class="hint">{ t, meter_id, kwh }</span></li>
+        <li class="muted">Optional: <code>GET /tariff/today</code> → <span class="hint">{ peak_eur_mwh, offpeak_eur_mwh }</span></li>
+      </ul>
+    </section>
+
+    <footer class="ft">
+      <span class="muted">pauhu — EU-hosted • AI Act ready • Cloud-agnostic</span>
+    </footer>
+  </main>
+  <input type="checkbox" id="demoMode" checked style="display:none">
+  <script src="script.js"></script>
+</body>
+</html>
