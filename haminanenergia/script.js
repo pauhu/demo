@@ -1,13 +1,112 @@
-const BASE_URL="https://api.pauhu.ai/haminanenergia/pauhu/v1";
-function show(o){document.getElementById("output").textContent=JSON.stringify(o,null,2);document.getElementById("ts").textContent=new Date().toLocaleString();}
-function token(){return window.AUTH_BRIDGE.getToken();}
-function authHeaders(){const t=token();return t?{"Authorization":"Bearer "+t}:{ };}
-function demo(){return document.getElementById("demoMode").checked;}
-async function sendUsage(){const payload={t:new Date().toISOString(),meter_id:document.getElementById("meterId").value,kwh:parseFloat(document.getElementById("kwh").value||"0")};if(demo()){show({demo:true,stored:1,...payload});return;}try{const r=await fetch(`${BASE_URL}/usage/ingest`,{method:"POST",headers:{...authHeaders(),"Content-Type":"application/json"},body:JSON.stringify(payload)});show(await r.json());}catch(e){show({error:String(e)});}}
-async function getOptimization(){const wid=encodeURIComponent(document.getElementById("windowId").value||"pilot-window-1");if(demo()){const now=new Date();const t=now.toISOString();show({demo:true,window_id:wid,recommendations:[{time:t,setpoint_kw:9500,note:"Shift 02:00–04:00 to off-peak"},{time:t,setpoint_kw:6000,note:"Prefer battery discharge at 18:00"}]});return;}try{const r=await fetch(`${BASE_URL}/optimizer/recommendation?window_id=${wid}`,{headers:{...authHeaders(),"Content-Type":"application/json"}});show(await r.json());}catch(e){show({error:String(e)});}}
-async function checkHealth(){const badg=document.getElementById("healthBadge");if(demo()){badg.innerHTML='Status: <span class="dot dot-ok"></span> Demo';show({demo:true,status:"green"});return;}try{const r=await fetch(`${BASE_URL}/reliability/health`,{headers:{...authHeaders()},cache:"no-store"});const ok=r.ok;const data=await r.json();badg.innerHTML='Status: <span class="dot '+(ok?'dot-ok':'dot-bad')+'"></span> '+(ok?'OK':'Down');show(data);}catch(e){badg.innerHTML='Status: <span class="dot dot-bad"></span> Error';show({error:String(e)});}}
-async function runSecurityScan(){const target=encodeURIComponent(document.getElementById("secTarget").value||"public");if(demo()){show({demo:true,target,findings:[{id:"CORS-001",severity:"low"},{id:"TLS-VER",severity:"info"}]});return;}try{const r=await fetch(`${BASE_URL.replace('/pauhu/v1','')}/security/scan?target=${target}`,{headers:authHeaders()});show(r.ok?await r.json():{error:`Security scan HTTP ${r.status}`});}catch(e){show({error:String(e)});}}
-async function getCompliance(){const scope=encodeURIComponent(document.getElementById("compScope").value||"ai");if(demo()){show({demo:true,scope,ai_act:{disclosures:true,logs:true,hilt:true}});return;}try{const r=await fetch(`${BASE_URL.replace('/pauhu/v1','')}/compliance/report?scope=${scope}`,{headers:authHeaders()});show(r.ok?await r.json():{error:`Compliance HTTP ${r.status}`});}catch(e){show({error:String(e)});}}
-async function runBackupDrill(){if(demo()){show({demo:true,started:true,note:"DR drill simulated"});return;}try{const r=await fetch(`${BASE_URL.replace('/pauhu/v1','')}/backup/drill`,{method:"POST",headers:authHeaders()});show(r.ok?await r.json():{error:`Backup HTTP ${r.status}`});}catch(e){show({error:String(e)});}}
-async function getExplanation(){const q=document.getElementById("explainQ").value||"Explain the optimization decision.";if(demo()){show({demo:true,explanation:"Load was shifted to off-peak to reduce €/MWh while keeping reserve margins."});return;}const body={model:"gpt-4o-mini",messages:[{role:"system",content:"Explain energy cost optimization decisions clearly and concisely."},{role:"user",content:q}]};try{const r=await fetch(`${BASE_URL}/chat/completions`,{method:"POST",headers:{...authHeaders(),"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok){show({error:`Explainer HTTP ${r.status}`});return;}const j=await r.json();const text=j?.choices?.[0]?.message?.content??j;show({explanation:text});}catch(e){show({error:String(e)});}}
-async function initAuth(){const hb=document.getElementById("healthBadge");hb.innerHTML='Status: <span class="dot dot-warn"></span> Checking…';const loggedIn=await window.AUTH_BRIDGE.handleRedirect();document.getElementById("loginBtn").style.display=(loggedIn||token())?"none":"inline-block";document.getElementById("logoutBtn").style.display=(loggedIn||token())?"inline-block":"none";setTimeout(checkHealth,300);}document.getElementById("loginBtn").onclick=()=>window.AUTH_BRIDGE.beginLogin();document.getElementById("logoutBtn").onclick=async()=>{await window.AUTH_BRIDGE.logout();location.reload();};initAuth();
+// Point to your backend (or keep demo mode on)
+const BASE_URL = "https://api.pauhu.ai/haminanenergia/pauhu/v1"; // change if needed
+
+function show(o){
+  document.getElementById("output").textContent = JSON.stringify(o, null, 2);
+  document.getElementById("ts").textContent = new Date().toLocaleString();
+}
+function demo(){ return document.getElementById("demoMode").checked; }
+
+// ---- Core demo ----
+async function sendUsage(){
+  const payload = {
+    t: new Date().toISOString(),
+    meter_id: document.getElementById("meterId").value,
+    kwh: parseFloat(document.getElementById("kwh").value || "0")
+  };
+  if (demo()) { show({ demo:true, stored:1, ...payload }); return; }
+  try{
+    const r = await fetch(`${BASE_URL}/usage/ingest`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    show(await r.json());
+  }catch(e){ show({ error:String(e) }); }
+}
+
+async function getOptimization(){
+  const wid = encodeURIComponent(document.getElementById("windowId").value || "pilot-window-1");
+  if (demo()){
+    const t = new Date().toISOString();
+    show({
+      demo:true, window_id:wid,
+      recommendations:[
+        { time:t, setpoint_kw: 9500, note:"Shift 02:00–04:00 to off-peak" },
+        { time:t, setpoint_kw: 6000, note:"Prefer battery discharge at 18:00" }
+      ]
+    });
+    return;
+  }
+  try{
+    const r = await fetch(`${BASE_URL}/optimizer/recommendation?window_id=${wid}`);
+    show(await r.json());
+  }catch(e){ show({ error:String(e) }); }
+}
+
+async function checkHealth(){
+  const badg = document.getElementById("healthBadge");
+  if (demo()){ badg.innerHTML='Status: <span class="dot dot-ok"></span> Demo'; show({ demo:true, status:"green" }); return; }
+  try{
+    const r = await fetch(`${BASE_URL}/reliability/health`, { cache:"no-store" });
+    const ok = r.ok; const data = await r.json();
+    badg.innerHTML = 'Status: <span class="dot '+(ok?'dot-ok':'dot-bad')+'"></span> '+(ok?'OK':'Down');
+    show(data);
+  }catch(e){
+    badg.innerHTML = 'Status: <span class="dot dot-bad"></span> Error';
+    show({ error:String(e) });
+  }
+}
+
+// ---- Advanced (may 404 if not implemented server-side) ----
+async function runSecurityScan(){
+  const target = encodeURIComponent(document.getElementById("secTarget").value || "public");
+  if (demo()){ show({ demo:true, target, findings:[ {id:"CORS-001",severity:"low"}, {id:"TLS-VER",severity:"info"} ]}); return; }
+  try{
+    const r = await fetch(`${BASE_URL.replace('/pauhu/v1','')}/security/scan?target=${target}`);
+    show(r.ok ? await r.json() : { error:`Security scan HTTP ${r.status}` });
+  }catch(e){ show({ error:String(e) }); }
+}
+
+async function getCompliance(){
+  const scope = encodeURIComponent(document.getElementById("compScope").value || "ai");
+  if (demo()){ show({ demo:true, scope, ai_act:{ disclosures:true, logs:true, hilt:true } }); return; }
+  try{
+    const r = await fetch(`${BASE_URL.replace('/pauhu/v1','')}/compliance/report?scope=${scope}`);
+    show(r.ok ? await r.json() : { error:`Compliance HTTP ${r.status}` });
+  }catch(e){ show({ error:String(e) }); }
+}
+
+async function runBackupDrill(){
+  if (demo()){ show({ demo:true, started:true, note:"DR drill simulated" }); return; }
+  try{
+    const r = await fetch(`${BASE_URL.replace('/pauhu/v1','')}/backup/drill`, { method:"POST" });
+    show(r.ok ? await r.json() : { error:`Backup HTTP ${r.status}` });
+  }catch(e){ show({ error:String(e) }); }
+}
+
+async function getExplanation(){
+  const q = document.getElementById("explainQ").value || "Explain the optimization decision.";
+  if (demo()){ show({ demo:true, explanation:"Load was shifted to off-peak to reduce €/MWh while keeping reserve margins."}); return; }
+  const body = {
+    model:"gpt-4o-mini",
+    messages:[
+      { role:"system", content:"Explain energy cost optimization decisions clearly and concisely." },
+      { role:"user", content:q }
+    ]
+  };
+  try{
+    const r = await fetch(`${BASE_URL}/chat/completions`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(body)
+    });
+    if(!r.ok){ show({ error:`Explainer HTTP ${r.status}` }); return; }
+    const j = await r.json();
+    const text = j?.choices?.[0]?.message?.content ?? j;
+    show({ explanation:text });
+  }catch(e){ show({ error:String(e) }); }
+}
+
+// Initial health ping (no auth)
+setTimeout(checkHealth, 300);
