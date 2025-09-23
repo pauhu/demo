@@ -1,1 +1,0 @@
-// See previous build: script with demo functions remains same.
