@@ -23,7 +23,7 @@ body{
 }
 .hdr{display:flex;justify-content:space-between;align-items:center}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:84px;height:auto;display:block} /* 3× bigger */
+.logo{width:70px;height:auto;display:block} /* 3× bigger */
 .tenant{color:var(--muted);font-weight:700}
 .badge{border:1px solid var(--line);border-radius:999px;padding:6px 10px;display:flex;gap:6px;align-items:center}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%}
