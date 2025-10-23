@@ -482,6 +482,68 @@ function filterResults() {
 
     // Update stats
     updateStats();
+
+    // Generate AI suggestions based on new filter state
+    generateContextualSuggestions();
+}
+
+// Generate AI-powered contextual suggestions based on current filter state
+async function generateContextualSuggestions() {
+    try {
+        const suggestionsPanel = document.getElementById('contextual-suggestions');
+        if (!suggestionsPanel) return; // Panel not in HTML yet
+
+        // Show loading state
+        suggestionsPanel.innerHTML = '<div style="padding: 12px; color: #666; font-size: 13px;">💡 Generating suggestions...</div>';
+
+        // Call AI worker with current filter state
+        const response = await pauhuAI.getContextualSuggestions(
+            currentFilters,
+            liveDocuments.length,
+            filteredResults.length
+        );
+
+        if (response.success && response.suggestions && response.suggestions.length > 0) {
+            displaySuggestions(response.suggestions);
+        } else {
+            suggestionsPanel.innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">No suggestions at this time</div>';
+        }
+    } catch (error) {
+        console.warn('Could not generate suggestions:', error);
+        const suggestionsPanel = document.getElementById('contextual-suggestions');
+        if (suggestionsPanel) {
+            suggestionsPanel.innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">Suggestions unavailable</div>';
+        }
+    }
+}
+
+// Display formatted suggestions
+function displaySuggestions(suggestions) {
+    const suggestionsPanel = document.getElementById('contextual-suggestions');
+    if (!suggestionsPanel) return;
+
+    const typeIcons = {
+        'energy': '⚡',
+        'materials': '🏭',
+        'emissions': '💨',
+        'collaboration': '🤝',
+        'digital': '💻',
+        'risk': '⚠️',
+        'general': '💡'
+    };
+
+    let html = '<div style="padding: 12px;">';
+    html += '<div style="font-weight: 600; font-size: 13px; margin-bottom: 8px; color: #002855;">💡 Suggested Actions</div>';
+
+    suggestions.forEach(suggestion => {
+        const icon = typeIcons[suggestion.type] || '💡';
+        html += `<div style="margin-bottom: 8px; padding: 8px; background: #f0f4f8; border-left: 3px solid #004080; border-radius: 4px; font-size: 12px; line-height: 1.4;">
+            <span style="margin-right: 6px;">${icon}</span>${suggestion.text}
+        </div>`;
+    });
+
+    html += '</div>';
+    suggestionsPanel.innerHTML = html;
 }
 
 // Update results table

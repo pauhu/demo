@@ -113,6 +113,22 @@ class PauhuAIClient {
     const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0));
     return dotProduct / (magnitudeA * magnitudeB);
   }
+
+  /**
+   * Get AI-powered contextual suggestions based on current filter state
+   */
+  async getContextualSuggestions(filters, documentCount, resultCount) {
+    const response = await fetch(`${this.apiBase}/api/contextual-suggestions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filters,
+        documentCount,
+        resultCount
+      })
+    });
+    return await response.json();
+  }
 }
 
 // Global instance
