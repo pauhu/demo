@@ -40,8 +40,8 @@ async function loadRealData() {
             try {
                 console.log(`[FETCH] Loading Eurostat: ${indicator}`);
                 // Use Worker proxy endpoint instead of direct API call
-                // Note: Cloudflare strips the route prefix, so we call /api/eurostat/ directly
-                const proxyUrl = `/api/eurostat/${indicator}`;
+                // Use relative path from current page location
+                const proxyUrl = `./api/eurostat/${indicator}`;
                 const response = await fetch(proxyUrl);
                 if (response.ok) {
                     const data = await response.json();
@@ -62,8 +62,8 @@ async function loadRealData() {
             try {
                 console.log(`[FETCH] Loading OECD: ${dataset}`);
                 // Use Worker proxy endpoint instead of direct API call
-                // Note: Cloudflare strips the route prefix, so we call /api/oecd/ directly
-                const proxyUrl = `/api/oecd/${dataset}`;
+                // Use relative path from current page location
+                const proxyUrl = `./api/oecd/${dataset}`;
                 const response = await fetch(proxyUrl);
                 if (response.ok) {
                     const data = await response.json();
