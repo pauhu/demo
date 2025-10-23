@@ -25,7 +25,7 @@ async function initializeRealData() {
             format: 'json'
         });
 
-        if (response.data) {
+        if (response && response.data) {
             eurostatData = response.data;
             semanticAnalysis = response.analysis || {};
             liveDocuments = transformEurostatToDocuments(eurostatData);
@@ -34,11 +34,14 @@ async function initializeRealData() {
             console.log('[DATA] Data source: Live Eurostat API');
             // Update UI to show real data is loaded
             updateDataSourceIndicator(true);
+        } else {
+            throw new Error('No data in response');
         }
     } catch (error) {
         console.warn('[WARNING] Could not load real data, using fallback mock data:', error.message);
         isRealDataLoaded = false;
         liveDocuments = getMockDocuments();
+        console.log(`[OK] Mock data loaded (${liveDocuments.length} documents)`);
         updateDataSourceIndicator(false);
     }
 }
@@ -253,6 +256,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize REAL Eurostat & OECD data first
     await initializeRealData();
+
+    // Ensure we have data - if still empty after API call, use mock
+    if (!liveDocuments || liveDocuments.length === 0) {
+        console.log('[WARNING] No data loaded, forcing mock data');
+        liveDocuments = getMockDocuments();
+    }
 
     // Populate initial filtered results with loaded data (real or mock fallback)
     filteredResults = [...liveDocuments];
