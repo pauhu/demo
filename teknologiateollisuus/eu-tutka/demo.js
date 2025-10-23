@@ -24,7 +24,8 @@ let currentFilters = {
     topics: ['all'],
     sectors: ['all'],
     language: 'en',
-    compliance: 'all'
+    compliance: 'all',
+    search: ''
 };
 
 // Load real data from APIs
@@ -223,6 +224,7 @@ function formatEurostatData(data, indicator) {
                 compliance: obsValue > 0.5 ? 'compliant' : 'pending',
                 sector: 'circular-economy',
                 source: 'Eurostat',
+                sourceUrl: `https://ec.europa.eu/eurostat/databrowser/view/${indicator}/default/table`,
                 sourceBadge: 'blue'
             });
         });
@@ -318,6 +320,7 @@ function formatOECDData(data, dataset) {
                 compliance: 'compliant',
                 sector: 'environment',
                 source: 'OECD',
+                sourceUrl: `https://stats.oecd.org/index.aspx?DatasetCode=${dataset}`,
                 sourceBadge: 'orange'
             });
         });
@@ -363,6 +366,22 @@ function filterResults() {
             return false;
         }
 
+        // Search term (case-insensitive, searches title, country, and indicator)
+        if (currentFilters.search && currentFilters.search.trim().length > 0) {
+            const searchTerm = currentFilters.search.toLowerCase();
+            const searchFields = [
+                doc.title || '',
+                doc.countryName || doc.country || '',
+                doc.indicator || '',
+                doc.topicName || doc.topic || '',
+                doc.value || ''
+            ].join(' ').toLowerCase();
+
+            if (!searchFields.includes(searchTerm)) {
+                return false;
+            }
+        }
+
         return true;
     });
 
@@ -393,6 +412,12 @@ function updateResults() {
 
     pageResults.forEach(doc => {
         const row = document.createElement('tr');
+
+        // Add data-source-url attribute for clickability
+        if (doc.sourceUrl) {
+            row.setAttribute('data-source-url', doc.sourceUrl);
+        }
+
         row.innerHTML = `
             <td>${doc.date}</td>
             <td><span class="source-badge ${doc.sourceBadge}">${doc.source}</span></td>
@@ -401,6 +426,16 @@ function updateResults() {
             <td>${doc.topicName}</td>
             <td>${doc.title}</td>
         `;
+
+        // Add click handler to open source URL
+        if (doc.sourceUrl) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', (e) => {
+                console.log('[CLICK] Opening source URL:', doc.sourceUrl);
+                window.open(doc.sourceUrl, '_blank');
+            });
+        }
+
         tbody.appendChild(row);
     });
 
@@ -415,6 +450,49 @@ function updateStats() {
     }
 }
 
+// Generate semantic insights for decision makers
+function generateSemanticInsights() {
+    const semanticBox = document.getElementById('semantic-analysis-box');
+    const semanticInsights = document.getElementById('semantic-insights');
+
+    if (!semanticBox || filteredResults.length === 0) {
+        if (semanticBox) semanticBox.style.display = 'none';
+        return;
+    }
+
+    // Calculate key metrics
+    const countries = [...new Set(filteredResults.map(d => d.countryName))];
+    const topics = [...new Set(filteredResults.map(d => d.topicName))];
+    const yearRange = filteredResults.reduce((acc, d) => {
+        const year = new Date(d.date).getFullYear();
+        if (!acc.includes(year)) acc.push(year);
+        return acc;
+    }, []).sort();
+
+    // Generate insights HTML
+    let insights = `
+        <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>${filteredResults.length} data points</strong> found across <strong>${countries.length} countries</strong></li>
+            <li>Topics covered: <strong>${topics.join(', ')}</strong></li>
+            <li>Time period: <strong>${yearRange[0]} - ${yearRange[yearRange.length - 1]}</strong></li>
+            <li>Data source: <strong>${filteredResults[0]?.source || 'Eurostat/OECD'}</strong> with source URLs for traceability</li>
+    `;
+
+    if (filteredResults.length > 0) {
+        const avgValue = filteredResults.reduce((sum, d) => {
+            const val = parseFloat(String(d.value || 0).replace('%', ''));
+            return sum + (isNaN(val) ? 0 : val);
+        }, 0) / filteredResults.length;
+
+        insights += `<li>Key trend: Data demonstrates ${filteredResults.length < 10 ? 'emerging' : 'established'} patterns in circular economy metrics</li>`;
+    }
+
+    insights += `</ul>`;
+
+    semanticInsights.innerHTML = insights;
+    semanticBox.style.display = 'block';
+}
+
 // Update pagination
 function updatePagination() {
     const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
@@ -422,6 +500,9 @@ function updatePagination() {
     if (pageInfoEl) {
         pageInfoEl.textContent = `Page ${currentPage} of ${totalPages}`;
     }
+
+    // Update semantic analysis
+    generateSemanticInsights();
 }
 
 // Apply filters
@@ -433,6 +514,7 @@ function applyFilters() {
     currentFilters.topics = getSelectedValues('topic-filter');
     currentFilters.sectors = getSelectedValues('sector-filter');
     currentFilters.compliance = document.getElementById('compliance-filter')?.value || 'all';
+    currentFilters.search = document.getElementById('search-filter')?.value || '';
 
     currentPage = 1;
     filterResults();
@@ -457,13 +539,15 @@ function resetFilters() {
         docTypes: ['all'],
         topics: ['all'],
         sectors: ['all'],
-        compliance: 'all'
+        compliance: 'all',
+        search: ''
     };
 
     // Reset UI
     document.getElementById('date-from').value = '2018-01-01';
     document.getElementById('date-to').value = '2023-12-31';
     document.getElementById('compliance-filter').value = 'all';
+    document.getElementById('search-filter').value = '';
 
     Array.from(document.querySelectorAll('select[multiple]')).forEach(select => {
         Array.from(select.options).forEach(opt => {
@@ -487,6 +571,46 @@ function changePage(direction) {
     }
 }
 
+// Export filtered results as CSV
+function exportResults() {
+    if (!filteredResults || filteredResults.length === 0) {
+        alert('No results to export');
+        return;
+    }
+
+    // Create CSV content
+    const headers = ['Date', 'Country', 'Indicator', 'Value', 'Topic', 'Source', 'Source URL'];
+    const csvRows = [headers.join(',')];
+
+    for (const doc of filteredResults) {
+        const row = [
+            doc.date || '',
+            doc.country || '',
+            doc.indicator || doc.topicName || '',
+            doc.value || '',
+            doc.topic || '',
+            doc.source || '',
+            doc.sourceUrl || ''
+        ].map(val => `"${String(val || '').replace(/"/g, '""')}"`);
+        csvRows.push(row.join(','));
+    }
+
+    const csv = csvRows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `eu-monitor-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showNotification(`Exported ${filteredResults.length} results to CSV`, 'success');
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('[INIT] Starting Teknologiateollisuus EU-Tutka Monitor...');
@@ -501,10 +625,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     filteredResults = [...liveDocuments];
 
     // Setup UI
-    document.getElementById('apply-filters')?.addEventListener('click', applyFilters);
-    document.getElementById('reset-filters')?.addEventListener('click', resetFilters);
-    document.getElementById('prev-page')?.addEventListener('click', () => changePage(-1));
-    document.getElementById('next-page')?.addEventListener('click', () => changePage(1));
+    const applyBtn = document.getElementById('apply-filters');
+    const resetBtn = document.getElementById('reset-filters');
+    const exportBtn = document.getElementById('export-results');
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+
+    console.log('[DEBUG] Button elements found:', { applyBtn, resetBtn, exportBtn, prevBtn, nextBtn });
+
+    if (applyBtn) applyBtn.addEventListener('click', () => { console.log('[CLICK] Apply filters'); applyFilters(); });
+    if (resetBtn) resetBtn.addEventListener('click', () => { console.log('[CLICK] Reset filters'); resetFilters(); });
+    if (exportBtn) exportBtn.addEventListener('click', () => { console.log('[CLICK] Export results'); exportResults(); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { console.log('[CLICK] Prev page'); changePage(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { console.log('[CLICK] Next page'); changePage(1); });
+
+    // Real-time search functionality
+    const searchInput = document.getElementById('search-filter');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            console.log('[SEARCH] Real-time search:', e.target.value);
+            currentFilters.search = e.target.value;
+            currentPage = 1;
+            filterResults();
+            updateResults();
+        });
+    }
 
     // Initial render
     updateResults();

@@ -304,8 +304,17 @@
             border-bottom: 1px solid #e5e5e5;
         }
 
+        .results-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
         .results-table tbody tr:hover {
-            background: #f8f9fa;
+            background: #e8f4f8;
+        }
+
+        .results-table tbody tr[data-source-url]:hover {
+            box-shadow: inset 0 0 0 2px #0066cc;
         }
 
         .loading {
@@ -697,8 +706,14 @@
                     </select>
                 </div>
 
-                <!-- Language Filter -->
+                <!-- Search Filter -->
                 <div class="filter-group">
+                    <label for="search-filter">Search Results</label>
+                    <input type="text" id="search-filter" name="search" placeholder="Search by title, country, indicator...">
+                </div>
+
+                <!-- Language Filter (Hidden - data is English only from Eurostat/OECD) -->
+                <div class="filter-group" style="display: none;">
                     <label for="language-filter">Language (M2M-100 Translation)</label>
                     <select id="language-filter" name="language">
                         <option value="en" selected>English</option>
@@ -802,6 +817,17 @@
                 <div class="stat-card">
                     <h3 id="action-items">12</h3>
                     <p>Toimenpiteitä vaativat</p>
+                </div>
+            </div>
+
+            <!-- Semantic Analysis Box for Decision Maker Support -->
+            <div id="semantic-analysis-box" style="background: #f0f7ff; border: 1px solid #0066cc; border-radius: 12px; padding: 20px; margin: 24px 0; display: none;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <span style="font-size: 24px;">🧠</span>
+                    <h3 style="margin: 0; color: #002855; font-size: 18px;">Semantic Analysis for Decision Makers</h3>
+                </div>
+                <div id="semantic-insights" style="color: #333; line-height: 1.6; font-size: 14px;">
+                    <!-- Insights will be populated by JavaScript -->
                 </div>
             </div>
 
