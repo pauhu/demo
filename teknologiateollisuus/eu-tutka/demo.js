@@ -32,32 +32,42 @@ async function loadRealData() {
     try {
         console.log('[LOAD] Starting real data load from Eurostat + OECD APIs...');
 
-        // Fetch Eurostat circular economy data
+        // Fetch Eurostat circular economy data (via Worker proxy to bypass CORS)
         const indicators = ['cei_srm030', 'cei_wm011', 'cei_pc020', 'cei_cie011'];
         const eurostatResults = [];
 
         for (const indicator of indicators) {
             try {
                 console.log(`[FETCH] Loading Eurostat: ${indicator}`);
-                const data = await eurostatConnector.getCircularEconomyData(indicator);
-                if (data) {
+                // Use Worker proxy endpoint instead of direct API call
+                const proxyUrl = `/teknologiateollisuus/eu-tutka/api/eurostat/${indicator}`;
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    const data = await response.json();
                     eurostatResults.push(...formatEurostatData(data, indicator));
+                } else {
+                    console.warn(`[WARN] Proxy returned ${response.status} for ${indicator}`);
                 }
             } catch (e) {
                 console.warn(`[WARN] Failed to load ${indicator}:`, e.message);
             }
         }
 
-        // Fetch OECD environmental data
+        // Fetch OECD environmental data (via Worker proxy to bypass CORS)
         const oecdDatasets = ['MUNW', 'WASTE_TREAT'];
         const oecdResults = [];
 
         for (const dataset of oecdDatasets) {
             try {
                 console.log(`[FETCH] Loading OECD: ${dataset}`);
-                const data = await oecdConnector.getEnvironmentalData(dataset);
-                if (data) {
+                // Use Worker proxy endpoint instead of direct API call
+                const proxyUrl = `/teknologiateollisuus/eu-tutka/api/oecd/${dataset}`;
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    const data = await response.json();
                     oecdResults.push(...formatOECDData(data, dataset));
+                } else {
+                    console.warn(`[WARN] Proxy returned ${response.status} for ${dataset}`);
                 }
             } catch (e) {
                 console.warn(`[WARN] Failed to load ${dataset}:`, e.message);
