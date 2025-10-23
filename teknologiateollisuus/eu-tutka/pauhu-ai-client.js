@@ -2,7 +2,7 @@
  * Pauhu AI Client - Connect demo to REAL Cloudflare Workers AI
  *
  * Endpoint: https://eu-monitor-ai-analysis.pauhu.workers.dev
- * Worker: eu-monitor-ai-analysis (deployed to Cloudflare)
+ * Worker: eu-monitor-ai-analysis
  */
 
 class PauhuAIClient {
@@ -112,22 +112,6 @@ class PauhuAIClient {
     const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
     const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0));
     return dotProduct / (magnitudeA * magnitudeB);
-  }
-
-  /**
-   * Get AI-powered contextual suggestions based on current filter state
-   */
-  async getContextualSuggestions(filters, documentCount, resultCount) {
-    const response = await fetch(`${this.apiBase}/api/contextual-suggestions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        filters,
-        documentCount,
-        resultCount
-      })
-    });
-    return await response.json();
   }
 }
 

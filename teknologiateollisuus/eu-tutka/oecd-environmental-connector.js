@@ -27,7 +27,7 @@ class OECDEnvironmentalConnector {
         if (this.cache.has(cacheKey)) {
             const cached = this.cache.get(cacheKey);
             if (Date.now() - cached.timestamp < this.cacheTimeout) {
-                console.log(`📊 OECD cache hit: ${dataset}`);
+                console.log(`[DATA] OECD cache hit: ${dataset}`);
                 return cached.data;
             }
         }
@@ -40,7 +40,7 @@ class OECDEnvironmentalConnector {
             
             // Fallback to compass.pauhu.ai if OECD fails
             if (!data || data.error) {
-                console.log(`⚠️ OECD API failed, trying compass fallback...`);
+                console.log(`[WARNING] OECD API failed, trying compass fallback...`);
                 data = await this.fetchFromCompass(dataset, filters);
             }
             
@@ -72,7 +72,7 @@ class OECDEnvironmentalConnector {
             const params = this.buildOECDStatQuery(dataset, filters);
             const url = `${this.baseUrl}/${datasetCode}/${params}`;
             
-            console.log(`🔗 OECD.Stat API: ${url}`);
+            console.log(`[LINK] OECD.Stat API: ${url}`);
             
             const response = await fetch(url, {
                 headers: {

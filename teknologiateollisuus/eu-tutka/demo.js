@@ -11,14 +11,14 @@ let isRealDataLoaded = false; // Track if real data loaded successfully
 
 // Initialize real data connectors
 async function initializeRealData() {
-    console.log('🔗 Initializing real data connectors...');
+    console.log('[LINK] Initializing real data connectors...');
 
     try {
         // Create API instance
         pauhuAPI = new PauhuProductionAPI();
 
         // Fetch real Eurostat data
-        console.log('📊 Fetching real Eurostat data...');
+        console.log('[DATA] Fetching real Eurostat data...');
         const response = await pauhuAPI.getCircularEconomyInsights({
             indicators: ['cei_srm030', 'cei_wm011', 'cei_pc020', 'cei_cie011'],
             analysis: ['trend', 'semantic', 'anomaly'],
@@ -30,13 +30,13 @@ async function initializeRealData() {
             semanticAnalysis = response.analysis || {};
             liveDocuments = transformEurostatToDocuments(eurostatData);
             isRealDataLoaded = true;
-            console.log(`✅ Real data loaded successfully (${liveDocuments.length} documents from Eurostat)`);
-            console.log('📊 Data source: Live Eurostat API');
+            console.log(`[OK] Real data loaded successfully (${liveDocuments.length} documents from Eurostat)`);
+            console.log('[DATA] Data source: Live Eurostat API');
             // Update UI to show real data is loaded
             updateDataSourceIndicator(true);
         }
     } catch (error) {
-        console.warn('⚠️ Could not load real data, using fallback mock data:', error.message);
+        console.warn('[WARNING] Could not load real data, using fallback mock data:', error.message);
         isRealDataLoaded = false;
         liveDocuments = getMockDocuments();
         updateDataSourceIndicator(false);
@@ -97,7 +97,7 @@ function transformEurostatToDocuments(data) {
 function updateDataSourceIndicator(isLive) {
     const indicator = document.getElementById('data-source-indicator');
     if (indicator) {
-        indicator.textContent = isLive ? '📊 Live Eurostat Data' : '📋 Demo Mock Data';
+        indicator.textContent = isLive ? '[DATA] Live Eurostat Data' : '[DEMO] Demo Mock Data';
         indicator.className = isLive ? 'data-source live' : 'data-source mock';
     }
 }
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     startCoordinationSimulation();
 
     // Show success message
-    const sourceMsg = isRealDataLoaded ? '✅ Live Eurostat-data ladattu!' : '⚠️ Käytetään demo-dataa';
+    const sourceMsg = isRealDataLoaded ? '[OK] Live Eurostat-data ladattu!' : '[WARNING] Käytetään demo-dataa';
     showNotification(sourceMsg, isRealDataLoaded ? 'success' : 'warning');
 });
 
@@ -281,12 +281,12 @@ async function initializeDualCorePanel() {
             // Update language core
             const langCore = status.cores.language;
             document.getElementById('language-core-status').textContent =
-                `✅ ${langCore.status === 'active' ? 'Aktiivinen' : 'Ei aktiivinen'}`;
+                `[OK] ${langCore.status === 'active' ? 'Aktiivinen' : 'Ei aktiivinen'}`;
 
             // Update semantic core
             const semCore = status.cores.semantic;
             document.getElementById('semantic-core-status').textContent =
-                `✅ ${semCore.status === 'active' ? 'Analysoi' : 'Ei aktiivinen'}`;
+                `[OK] ${semCore.status === 'active' ? 'Analysoi' : 'Ei aktiivinen'}`;
 
             // Update document count
             document.getElementById('docs-analyzed').textContent = liveDocuments.length;
@@ -302,10 +302,10 @@ async function initializeDualCorePanel() {
                     minute: '2-digit'
                 });
 
-            console.log('✅ Dual Core panel initialized with real AI status');
+            console.log('[OK] Dual Core panel initialized with real AI status');
         }
     } catch (error) {
-        console.warn('⚠️ Could not connect to Pauhu AI worker:', error);
+        console.warn('[WARNING] Could not connect to Pauhu AI worker:', error);
         // Fallback: use local data
         document.getElementById('docs-analyzed').textContent = liveDocuments.length;
         document.getElementById('dual-core-last-update').textContent =
@@ -482,68 +482,6 @@ function filterResults() {
 
     // Update stats
     updateStats();
-
-    // Generate AI suggestions based on new filter state
-    generateContextualSuggestions();
-}
-
-// Generate AI-powered contextual suggestions based on current filter state
-async function generateContextualSuggestions() {
-    try {
-        const suggestionsPanel = document.getElementById('contextual-suggestions');
-        if (!suggestionsPanel) return; // Panel not in HTML yet
-
-        // Show loading state
-        suggestionsPanel.innerHTML = '<div style="padding: 12px; color: #666; font-size: 13px;">💡 Generating suggestions...</div>';
-
-        // Call AI worker with current filter state
-        const response = await pauhuAI.getContextualSuggestions(
-            currentFilters,
-            liveDocuments.length,
-            filteredResults.length
-        );
-
-        if (response.success && response.suggestions && response.suggestions.length > 0) {
-            displaySuggestions(response.suggestions);
-        } else {
-            suggestionsPanel.innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">No suggestions at this time</div>';
-        }
-    } catch (error) {
-        console.warn('Could not generate suggestions:', error);
-        const suggestionsPanel = document.getElementById('contextual-suggestions');
-        if (suggestionsPanel) {
-            suggestionsPanel.innerHTML = '<div style="padding: 12px; color: #999; font-size: 13px;">Suggestions unavailable</div>';
-        }
-    }
-}
-
-// Display formatted suggestions
-function displaySuggestions(suggestions) {
-    const suggestionsPanel = document.getElementById('contextual-suggestions');
-    if (!suggestionsPanel) return;
-
-    const typeIcons = {
-        'energy': '⚡',
-        'materials': '🏭',
-        'emissions': '💨',
-        'collaboration': '🤝',
-        'digital': '💻',
-        'risk': '⚠️',
-        'general': '💡'
-    };
-
-    let html = '<div style="padding: 12px;">';
-    html += '<div style="font-weight: 600; font-size: 13px; margin-bottom: 8px; color: #002855;">💡 Suggested Actions</div>';
-
-    suggestions.forEach(suggestion => {
-        const icon = typeIcons[suggestion.type] || '💡';
-        html += `<div style="margin-bottom: 8px; padding: 8px; background: #f0f4f8; border-left: 3px solid #004080; border-radius: 4px; font-size: 12px; line-height: 1.4;">
-            <span style="margin-right: 6px;">${icon}</span>${suggestion.text}
-        </div>`;
-    });
-
-    html += '</div>';
-    suggestionsPanel.innerHTML = html;
 }
 
 // Update results table

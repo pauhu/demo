@@ -41,7 +41,7 @@ class EurostatAPIConnector {
         if (this.cache.has(cacheKey)) {
             const cached = this.cache.get(cacheKey);
             if (Date.now() - cached.timestamp < this.cacheExpiry) {
-                console.log(`📊 Using cached data for ${dataset}`);
+                console.log(`[DATA] Using cached data for ${dataset}`);
                 return cached.data;
             }
         }
@@ -77,7 +77,7 @@ class EurostatAPIConnector {
                 timestamp: Date.now()
             });
 
-            console.log(`✅ Successfully fetched ${dataset} from Eurostat`);
+            console.log(`[OK] Successfully fetched ${dataset} from Eurostat`);
             return data;
 
         } catch (error) {
@@ -85,7 +85,7 @@ class EurostatAPIConnector {
             
             // Try to return cached data even if expired
             if (this.cache.has(cacheKey)) {
-                console.log(`⚠️ Using expired cache for ${dataset}`);
+                console.log(`[WARNING] Using expired cache for ${dataset}`);
                 return this.cache.get(cacheKey).data;
             }
             
@@ -320,7 +320,7 @@ class EurostatAPIConnector {
                 }
             });
 
-            console.log('✅ Eurostat API connection successful');
+            console.log('[OK] Eurostat API connection successful');
             return {
                 status: 'connected',
                 endpoint: this.baseUrl,
