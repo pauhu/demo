@@ -42,10 +42,15 @@ async function loadRealData() {
                 // Use Worker proxy endpoint instead of direct API call
                 // Use relative path from current page location
                 const proxyUrl = `./api/eurostat/${indicator}`;
+                console.log(`[DEBUG] Fetch URL: ${proxyUrl}`);
                 const response = await fetch(proxyUrl);
+                console.log(`[DEBUG] Response status: ${response.status}`);
                 if (response.ok) {
                     const data = await response.json();
-                    eurostatResults.push(...formatEurostatData(data, indicator));
+                    console.log(`[DEBUG] Parsed JSON, formatting data...`);
+                    const formatted = formatEurostatData(data, indicator);
+                    console.log(`[DEBUG] Formatted ${formatted.length} documents from ${indicator}`);
+                    eurostatResults.push(...formatted);
                 } else {
                     console.warn(`[WARN] Proxy returned ${response.status} for ${indicator}`);
                 }
