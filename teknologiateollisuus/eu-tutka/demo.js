@@ -1,5 +1,9 @@
 // EU Circular Economy Monitor - Real Eurostat + OECD Data
 // Calls actual Eurostat and OECD APIs for live data
+// Version: 2025-10-23-fixed (No mocks, real data only)
+
+console.log('📊 [DEMO.JS] Teknologiateollisuus EU-Tutka Monitor loaded');
+console.log('🔄 [DEMO.JS] No mocks - using only real Eurostat + OECD APIs');
 
 let liveDocuments = [];
 let filteredResults = [];
@@ -9,6 +13,8 @@ const resultsPerPage = 10;
 // Initialize API connectors
 const eurostatConnector = new EurostatAPIConnector();
 const oecdConnector = new OECDEnvironmentalConnector();
+
+console.log('✓ [DEMO.JS] API connectors initialized');
 
 let currentFilters = {
     dateFrom: '2018-01-01',
@@ -307,41 +313,6 @@ function formatOECDData(data, dataset) {
 
     return documents;
 }
-
-// Sample data for fallback
-function getSampleData() {
-    return [
-        {
-            date: '2025-10-15',
-            country: 'FI',
-            countryName: 'Finland',
-            type: 'statistic',
-            typeName: 'Eurostat Data',
-            topic: 'material',
-            topicName: 'Circular Material Use Rate',
-            title: 'Finland: Circular Material Use Rate 45.2%',
-            compliance: 'compliant',
-            sector: 'manufacturing',
-            source: 'Eurostat',
-            sourceBadge: 'blue'
-        },
-        {
-            date: '2025-10-10',
-            country: 'SE',
-            countryName: 'Sweden',
-            type: 'environmental-data',
-            typeName: 'OECD Data',
-            topic: 'waste',
-            topicName: 'Municipal Waste',
-            title: 'Sweden: Municipal Waste Management - 52 kg/capita',
-            compliance: 'compliant',
-            sector: 'environment',
-            source: 'OECD',
-            sourceBadge: 'orange'
-        }
-    ];
-}
-
 // Filter and search results
 function filterResults() {
     filteredResults = liveDocuments.filter(doc => {
