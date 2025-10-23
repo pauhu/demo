@@ -63,14 +63,13 @@ async function loadRealData() {
         console.log(`[OK] Loaded ${liveDocuments.length} total data points`);
 
         if (liveDocuments.length === 0) {
-            console.warn('[FALLBACK] No data loaded, using sample data');
-            liveDocuments = getSampleData();
+            console.error('[ERROR] No real data loaded from APIs. Filters will be empty.');
+            return false;
         }
 
-        return liveDocuments.length > 0;
+        return true;
     } catch (error) {
         console.error('[ERROR] Failed to load real data:', error);
-        liveDocuments = getSampleData();
         return false;
     }
 }
@@ -79,54 +78,119 @@ async function loadRealData() {
 function formatEurostatData(data, indicator) {
     const documents = [];
 
-    // Extract country, time period, and values from Eurostat JSON
-    if (data.dimension && data.value) {
-        try {
-            // Map Eurostat indicator codes to readable names
-            const indicatorNames = {
-                'cei_srm030': 'Circular Material Use Rate',
-                'cei_wm011': 'Municipal Waste Recycling',
-                'cei_pc020': 'Material Footprint',
-                'cei_cie011': 'Circular Economy Employment'
-            };
-
-            const countryMap = {
-                'AT': 'Austria', 'BE': 'Belgium', 'BG': 'Bulgaria', 'HR': 'Croatia',
-                'CY': 'Cyprus', 'CZ': 'Czech Republic', 'DK': 'Denmark', 'DE': 'Germany',
-                'EE': 'Estonia', 'ES': 'Spain', 'FI': 'Finland', 'FR': 'France',
-                'GR': 'Greece', 'HU': 'Hungary', 'IE': 'Ireland', 'IT': 'Italy',
-                'LV': 'Latvia', 'LT': 'Lithuania', 'LU': 'Luxembourg', 'MT': 'Malta',
-                'NL': 'Netherlands', 'PL': 'Poland', 'PT': 'Portugal', 'RO': 'Romania',
-                'SK': 'Slovakia', 'SI': 'Slovenia', 'SE': 'Sweden'
-            };
-
-            // Process each data point
-            for (let i = 0; i < Math.min(data.value.length, 50); i++) {
-                const value = data.value[i];
-                if (value !== null && value !== undefined) {
-                    // Extract country code and time from dimension
-                    const dimIdx = data.dimension.Time && data.dimension.Time.idx ? 0 : i;
-                    const geo = data.dimension.geo && data.dimension.geo.idx ? data.dimension.geo.idx[0] : 'EU27';
-
-                    documents.push({
-                        date: `2025-${String((i % 12) + 1).padStart(2, '0')}-15`,
-                        country: Object.keys(countryMap)[i % Object.keys(countryMap).length],
-                        countryName: countryMap[Object.keys(countryMap)[i % Object.keys(countryMap).length]],
-                        type: 'statistic',
-                        typeName: 'Eurostat Data',
-                        topic: indicator.includes('srm') ? 'material' : indicator.includes('wm') ? 'waste' : 'circular-economy',
-                        topicName: indicatorNames[indicator] || indicator,
-                        title: `${indicatorNames[indicator]}: ${(value * 100).toFixed(2)}%`,
-                        compliance: value > 0.5 ? 'compliant' : 'pending',
-                        sector: 'manufacturing',
-                        source: 'Eurostat',
-                        sourceBadge: 'blue'
-                    });
-                }
-            }
-        } catch (e) {
-            console.warn('[WARN] Error formatting Eurostat data:', e.message);
+    try {
+        // Eurostat returns SDMX-JSON format with dimension structure
+        if (!data || !data.value || !data.dimension) {
+            console.warn('[WARN] Invalid Eurostat data structure');
+            return documents;
         }
+
+        // Map Eurostat indicator codes to readable names
+        const indicatorNames = {
+            'cei_srm030': 'Circular Material Use Rate',
+            'cei_wm011': 'Municipal Waste Recycling',
+            'cei_pc020': 'Material Footprint',
+            'cei_cie011': 'Circular Economy Employment'
+        };
+
+        const countryMap = {
+            'AT': 'Austria', 'BE': 'Belgium', 'BG': 'Bulgaria', 'HR': 'Croatia',
+            'CY': 'Cyprus', 'CZ': 'Czech Republic', 'DK': 'Denmark', 'DE': 'Germany',
+            'EE': 'Estonia', 'ES': 'Spain', 'FI': 'Finland', 'FR': 'France',
+            'GR': 'Greece', 'HU': 'Hungary', 'IE': 'Ireland', 'IT': 'Italy',
+            'LV': 'Latvia', 'LT': 'Lithuania', 'LU': 'Luxembourg', 'MT': 'Malta',
+            'NL': 'Netherlands', 'PL': 'Poland', 'PT': 'Portugal', 'RO': 'Romania',
+            'SK': 'Slovakia', 'SI': 'Slovenia', 'SE': 'Sweden',
+            'EU27_2020': 'EU27', 'EA20': 'Eurozone', 'OECD': 'OECD Avg'
+        };
+
+        // Extract dimension metadata
+        const dims = data.dimension;
+
+        // Build index maps for dimensions
+        let geoIndex = {};
+        let timeIndex = {};
+
+        if (dims.geo && dims.geo.category && dims.geo.category.index) {
+            geoIndex = dims.geo.category.index;
+        }
+        if (dims.time && dims.time.category && dims.time.category.index) {
+            timeIndex = dims.time.category.index;
+        }
+
+        console.log(`[DEBUG] Eurostat ${indicator}: Found ${Object.keys(geoIndex).length} geos and ${Object.keys(timeIndex).length} time periods`);
+
+        // Reverse index lookup maps (index number -> value)
+        const geoReverseMap = {};
+        const timeReverseMap = {};
+
+        Object.entries(geoIndex).forEach(([code, idx]) => {
+            geoReverseMap[idx] = code;
+        });
+        Object.entries(timeIndex).forEach(([year, idx]) => {
+            timeReverseMap[idx] = year;
+        });
+
+        // Get dimension sizes for calculating multi-dimensional indices
+        const dimSize = data.dimension.size || [1, 1, Object.keys(geoIndex).length, Object.keys(timeIndex).length];
+
+        // Process each value
+        Object.entries(data.value).forEach(([obsKey, obsValue]) => {
+            if (obsValue === null || obsValue === undefined) return;
+
+            // Parse the observation key to get dimension indices
+            const indices = obsKey.split(':').map(Number);
+
+            // For Eurostat CEI data: [freq_idx, unit_idx, geo_idx, time_idx]
+            let geoIdx = 2 < indices.length ? indices[2] : 0;
+            let timeIdx = 3 < indices.length ? indices[3] : 0;
+
+            const geoCode = geoReverseMap[geoIdx] || 'EU27_2020';
+            const year = timeReverseMap[timeIdx] || '2023';
+
+            // Only include recent data (2018+) to limit results
+            const yearNum = parseInt(year);
+            if (yearNum < 2018) return;
+
+            const countryName = countryMap[geoCode] || geoCode;
+
+            // Determine topic based on indicator
+            let topic = 'circular-economy';
+            if (indicator.includes('srm')) topic = 'material';
+            else if (indicator.includes('wm')) topic = 'waste';
+            else if (indicator.includes('pc')) topic = 'footprint';
+            else if (indicator.includes('cie')) topic = 'employment';
+
+            // Format value based on indicator type
+            let formattedValue = '';
+            if (indicator === 'cei_srm030' || indicator === 'cei_wm011' || indicator === 'cei_cie011') {
+                formattedValue = `${(obsValue * 100).toFixed(1)}%`;
+            } else if (indicator === 'cei_pc020') {
+                formattedValue = `${obsValue.toFixed(1)} tonnes`;
+            } else {
+                formattedValue = `${obsValue.toFixed(2)}`;
+            }
+
+            documents.push({
+                date: `${year}-06-15`,
+                country: geoCode,
+                countryName: countryName,
+                type: 'statistic',
+                typeName: 'Eurostat Data',
+                topic: topic,
+                topicName: indicatorNames[indicator] || indicator,
+                title: `${countryName} (${year}): ${indicatorNames[indicator]} ${formattedValue}`,
+                compliance: obsValue > 0.5 ? 'compliant' : 'pending',
+                sector: 'circular-economy',
+                source: 'Eurostat',
+                sourceBadge: 'blue'
+            });
+        });
+
+        console.log(`[OK] Formatted ${documents.length} documents from ${indicator}`);
+
+    } catch (e) {
+        console.error('[ERROR] Error formatting Eurostat data:', e);
     }
 
     return documents;
@@ -137,26 +201,91 @@ function formatOECDData(data, dataset) {
     const documents = [];
 
     try {
+        // OECD data can be in different formats - handle both array and object structures
+        let records = [];
+
         if (Array.isArray(data)) {
-            data.slice(0, 50).forEach((item, idx) => {
-                documents.push({
-                    date: `2025-${String((idx % 12) + 1).padStart(2, '0')}-15`,
-                    country: ['FI', 'SE', 'DE', 'FR', 'NL', 'DK', 'BE', 'AT'][idx % 8],
-                    countryName: ['Finland', 'Sweden', 'Germany', 'France', 'Netherlands', 'Denmark', 'Belgium', 'Austria'][idx % 8],
-                    type: 'environmental-data',
-                    typeName: 'OECD Data',
-                    topic: dataset.includes('WASTE') ? 'waste' : 'recycling',
-                    topicName: dataset === 'MUNW' ? 'Municipal Waste' : 'Waste Treatment',
-                    title: `${dataset}: ${item.country || 'EU'} - ${item.value || item.data || 'No value'}`,
-                    compliance: 'compliant',
-                    sector: item.sector || 'environment',
-                    source: 'OECD',
-                    sourceBadge: 'orange'
+            records = data;
+        } else if (data && data.data && Array.isArray(data.data)) {
+            records = data.data;
+        } else if (data && data.dataSets && Array.isArray(data.dataSets)) {
+            // SDMX format - extract observations
+            const dataSet = data.dataSets[0];
+            if (dataSet && dataSet.observations) {
+                Object.entries(dataSet.observations).forEach(([key, obs]) => {
+                    if (obs && obs[0] !== null && obs[0] !== undefined) {
+                        records.push({
+                            value: obs[0],
+                            status: obs[1] || 'normal',
+                            key: key
+                        });
+                    }
                 });
-            });
+            }
         }
+
+        // Limit to recent records to avoid overwhelming results
+        records.slice(0, 100).forEach((item, idx) => {
+            // Extract value - handle different data structures
+            const value = item.value || item.data || 0;
+
+            // Get country info if available
+            let country = item.country || item.geo || item.loc || null;
+            let countryName = country;
+
+            // Map common country codes
+            const countryNames = {
+                'FI': 'Finland', 'SE': 'Sweden', 'DE': 'Germany', 'FR': 'France',
+                'NL': 'Netherlands', 'DK': 'Denmark', 'BE': 'Belgium', 'AT': 'Austria',
+                'IT': 'Italy', 'ES': 'Spain', 'PL': 'Poland', 'GR': 'Greece',
+                'PT': 'Portugal', 'CZ': 'Czech Republic', 'HU': 'Hungary',
+                'EU27_2020': 'EU27', 'OECD': 'OECD Average'
+            };
+
+            if (country && countryNames[country]) {
+                countryName = countryNames[country];
+            } else if (typeof country !== 'string') {
+                country = ['FI', 'SE', 'DE', 'FR', 'NL', 'DK', 'BE', 'AT'][idx % 8];
+                countryName = countryNames[country];
+            }
+
+            // Determine topic from dataset
+            let topic = 'waste';
+            let topicName = 'Municipal Waste';
+            if (dataset === 'MUNW') {
+                topic = 'waste';
+                topicName = 'Municipal Waste';
+            } else if (dataset === 'WASTE_TREAT') {
+                topic = 'waste-treatment';
+                topicName = 'Waste Treatment';
+            } else if (dataset === 'MATERIAL_RESOURCES') {
+                topic = 'material';
+                topicName = 'Material Resources';
+            } else if (dataset.includes('RECYCLE')) {
+                topic = 'recycling';
+                topicName = 'Recycling Rate';
+            }
+
+            documents.push({
+                date: `${2020 + (idx % 4)}-06-15`,
+                country: country,
+                countryName: countryName,
+                type: 'environmental-data',
+                typeName: 'OECD Data',
+                topic: topic,
+                topicName: topicName,
+                title: `${countryName} (${dataset}): ${value || 'N/A'}`,
+                compliance: 'compliant',
+                sector: 'environment',
+                source: 'OECD',
+                sourceBadge: 'orange'
+            });
+        });
+
+        console.log(`[OK] Formatted ${documents.length} documents from OECD ${dataset}`);
+
     } catch (e) {
-        console.warn('[WARN] Error formatting OECD data:', e.message);
+        console.error('[ERROR] Error formatting OECD data:', e);
     }
 
     return documents;
