@@ -1,3 +1,7 @@
 User-agent: *
 Disallow: /docs/
 Disallow: /compliance/
+Disallow: /teknologiateollisuus/
+Disallow: /vk/
+Disallow: /demo/
+Crawl-delay: 10
