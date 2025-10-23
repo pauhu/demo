@@ -370,10 +370,20 @@ function filterResults() {
                 doc.countryName || doc.country || '',
                 doc.indicator || '',
                 doc.topicName || doc.topic || '',
-                doc.value || ''
+                (doc.value ? String(doc.value) : '')
             ].join(' ').toLowerCase();
 
-            if (!searchFields.includes(searchTerm)) {
+            const matches = searchFields.includes(searchTerm);
+            if (!matches && liveDocuments.length < 20) {
+                // Debug logging for small datasets
+                console.log(`[SEARCH-FILTER] No match for "${searchTerm}" in:`, {
+                    title: doc.title,
+                    country: doc.countryName || doc.country,
+                    indicator: doc.indicator,
+                    searchFields: searchFields.substring(0, 50)
+                });
+            }
+            if (!matches) {
                 return false;
             }
         }
@@ -649,13 +659,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Real-time search functionality
     const searchInput = document.getElementById('search-filter');
+    console.log('[INIT] Search input element:', searchInput);
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            console.log('[SEARCH] Real-time search:', e.target.value);
-            currentFilters.search = e.target.value;
+            console.log('[SEARCH] Real-time search input triggered:', e.target.value);
+            console.log('[SEARCH] Before filter - liveDocuments count:', liveDocuments.length);
+            currentFilters.search = e.target.value.toLowerCase();
             currentPage = 1;
             filterResults();
+            console.log('[SEARCH] After filter - filteredResults count:', filteredResults.length);
             updateResults();
+            console.log('[SEARCH] Results updated on page');
         });
     }
 
