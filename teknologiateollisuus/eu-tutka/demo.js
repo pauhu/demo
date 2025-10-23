@@ -11,8 +11,8 @@ const eurostatConnector = new EurostatAPIConnector();
 const oecdConnector = new OECDEnvironmentalConnector();
 
 let currentFilters = {
-    dateFrom: '2025-01-01',
-    dateTo: '2025-10-22',
+    dateFrom: '2018-01-01',
+    dateTo: '2023-12-31',
     countries: ['all'],
     docTypes: ['all'],
     topics: ['all'],
@@ -421,8 +421,8 @@ function updatePagination() {
 
 // Apply filters
 function applyFilters() {
-    currentFilters.dateFrom = document.getElementById('date-from')?.value || '2025-01-01';
-    currentFilters.dateTo = document.getElementById('date-to')?.value || '2025-10-22';
+    currentFilters.dateFrom = document.getElementById('date-from')?.value || '2018-01-01';
+    currentFilters.dateTo = document.getElementById('date-to')?.value || '2023-12-31';
     currentFilters.countries = getSelectedValues('country-filter');
     currentFilters.docTypes = getSelectedValues('doc-type-filter');
     currentFilters.topics = getSelectedValues('topic-filter');
@@ -446,8 +446,8 @@ function getSelectedValues(elementId) {
 // Reset filters
 function resetFilters() {
     currentFilters = {
-        dateFrom: '2025-01-01',
-        dateTo: '2025-10-22',
+        dateFrom: '2018-01-01',
+        dateTo: '2023-12-31',
         countries: ['all'],
         docTypes: ['all'],
         topics: ['all'],
@@ -456,8 +456,8 @@ function resetFilters() {
     };
 
     // Reset UI
-    document.getElementById('date-from').value = '2025-01-01';
-    document.getElementById('date-to').value = '2025-10-22';
+    document.getElementById('date-from').value = '2018-01-01';
+    document.getElementById('date-to').value = '2023-12-31';
     document.getElementById('compliance-filter').value = 'all';
 
     Array.from(document.querySelectorAll('select[multiple]')).forEach(select => {
