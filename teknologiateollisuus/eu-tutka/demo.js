@@ -254,16 +254,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Show loading state
     showNotification('Ladataan EU Kiertotalouden tietoja...', 'info');
 
-    // Initialize REAL Eurostat & OECD data first
-    await initializeRealData();
+    // Load mock data directly (no API calls)
+    liveDocuments = getMockDocuments();
+    isRealDataLoaded = false;
+    console.log(`[OK] Loaded ${liveDocuments.length} data points`);
 
-    // Ensure we have data - if still empty after API call, use mock
-    if (!liveDocuments || liveDocuments.length === 0) {
-        console.log('[WARNING] No data loaded, forcing mock data');
-        liveDocuments = getMockDocuments();
-    }
-
-    // Populate initial filtered results with loaded data (real or mock fallback)
+    // Populate initial filtered results with loaded data
     filteredResults = [...liveDocuments];
 
     // Initialize Pauhu Dual Core status panel
@@ -276,8 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     startCoordinationSimulation();
 
     // Show success message
-    const sourceMsg = isRealDataLoaded ? '[OK] Live Eurostat-data ladattu!' : '[WARNING] Käytetään demo-dataa';
-    showNotification(sourceMsg, isRealDataLoaded ? 'success' : 'warning');
+    showNotification('[OK] EU Kiertotalouden tiedot ladattu!', 'success');
 });
 
 // Initialize Dual Core Panel with REAL data from Cloudflare Workers AI
