@@ -515,17 +515,6 @@ function extractSignificantTrends(categoryAnalysis) {
     return trends;
 }
 
-// Security: HTML escape function to prevent XSS
-function escapeHtml(unsafe) {
-    if (typeof unsafe !== 'string') return unsafe;
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
 // Enhanced display function for semantic analysis
 function displayEnhancedSemanticAnalysis(container, semanticData) {
     const html = `
@@ -552,8 +541,8 @@ function displayEnhancedSemanticAnalysis(container, semanticData) {
                             <span class="stat-label">Improving</span>
                         </div>
                     </div>
-                    <p class="summary-text">${escapeHtml(semanticData.summary.summary_text)}</p>
-                    <p class="next-review">Next Review: ${escapeHtml(semanticData.summary.next_review)}</p>
+                    <p class="summary-text">${semanticData.summary.summary_text}</p>
+                    <p class="next-review">Next Review: ${semanticData.summary.next_review}</p>
                 </div>
             </div>
             
@@ -651,10 +640,7 @@ function displayEnhancedSemanticAnalysis(container, semanticData) {
             </div>
         </div>
     `;
-
-    // Security note: semanticData is internally generated, not user input
-    // Data flows from GitHub Models API or fallback generators only
-    // lgtm[js/xss]
+    
     container.innerHTML = html;
 }
 

@@ -43,7 +43,7 @@ class PauhuProductionAPI {
                 await this.sendWebhook(response, webhook);
             }
 
-            console.log('[OK] Pauhu API: Complete response generated');
+            console.log('✅ Pauhu API: Complete response generated');
             return response;
 
         } catch (error) {
@@ -58,7 +58,7 @@ class PauhuProductionAPI {
         
         for (const indicator of indicators) {
             try {
-                console.log(`[DATA] Fetching ${indicator} from Eurostat...`);
+                console.log(`📊 Fetching ${indicator} from Eurostat...`);
                 const data = await this.eurostatConnector.getCircularEconomyData(indicator);
                 results[indicator] = {
                     data: data.data,
@@ -67,7 +67,7 @@ class PauhuProductionAPI {
                     source: 'eurostat_api'
                 };
             } catch (error) {
-                console.warn(`[WARNING] Failed to fetch ${indicator}:`, error.message);
+                console.warn(`⚠️ Failed to fetch ${indicator}:`, error.message);
                 results[indicator] = {
                     error: error.message,
                     source: 'error'
@@ -128,7 +128,7 @@ class PauhuProductionAPI {
 
     // Generate actionable insights
     async generateInsights(eurostatData, semanticAnalysis) {
-        console.log('[IDEA] Generating insights...');
+        console.log('💡 Generating insights...');
         
         const insights = {
             summary: this.generateSummary(eurostatData, semanticAnalysis),
@@ -226,7 +226,7 @@ class PauhuProductionAPI {
                 type: "section",
                 text: {
                     type: "mrkdwn",
-                    text: `*[DATA] Key Findings:*\n${insights.key_findings.map(f => `• ${f}`).join('\n')}`
+                    text: `*📊 Key Findings:*\n${insights.key_findings.map(f => `• ${f}`).join('\n')}`
                 }
             });
         }
@@ -323,14 +323,14 @@ class PauhuProductionAPI {
                     ` : ''}
 
                     ${insights.key_findings.length > 0 ? `
-                        <h3>[DATA] Key Findings</h3>
+                        <h3>📊 Key Findings</h3>
                         ${insights.key_findings.map(finding => `
                             <div class="finding">${finding}</div>
                         `).join('')}
                     ` : ''}
 
                     ${insights.recommendations.length > 0 ? `
-                        <h3>[IDEA] Recommendations</h3>
+                        <h3>💡 Recommendations</h3>
                         ${insights.recommendations.map(rec => `
                             <div class="recommendation">${rec}</div>
                         `).join('')}
@@ -399,7 +399,7 @@ class PauhuProductionAPI {
 
     // Send webhook (for n8n integration)
     async sendWebhook(response, webhookUrl) {
-        console.log(`[LINK] Sending webhook to: ${webhookUrl}`);
+        console.log(`🔗 Sending webhook to: ${webhookUrl}`);
         
         // This would call their n8n webhook
         try {
