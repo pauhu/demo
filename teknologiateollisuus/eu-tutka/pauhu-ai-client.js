@@ -1,12 +1,12 @@
 /**
  * Pauhu AI Client - Connect demo to REAL Cloudflare Workers AI
  *
- * Using custom domain route: api.pauhu.ai/api/*
- * Worker: eu-monitor-ai-analysis
+ * Endpoint: https://eu-monitor-ai-analysis.pauhu.workers.dev
+ * Worker: eu-monitor-ai-analysis (deployed to Cloudflare)
  */
 
 class PauhuAIClient {
-  constructor(apiBase = 'https://api.pauhu.ai') {
+  constructor(apiBase = 'https://eu-monitor-ai-analysis.pauhu.workers.dev') {
     this.apiBase = apiBase;
   }
 
