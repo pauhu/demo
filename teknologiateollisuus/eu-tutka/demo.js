@@ -274,6 +274,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Initialize Dual Core Panel with REAL data from Cloudflare Workers AI
 async function initializeDualCorePanel() {
     try {
+        // Initialize Pauhu AI client if not already done
+        if (!pauhuAI) {
+            pauhuAI = new PauhuAIClient();
+        }
+
         // Get Dual Core status from AI worker
         const status = await pauhuAI.getDualCoreStatus();
 
