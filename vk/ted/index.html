@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VK TED - EU Tenders Monitor - Pauhu AI</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://pauhu.ai/assets/pauhu.ai_brand_mark_nega.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://pauhu.ai/assets/pauhu.ai_brand_mark_nega.png">
+    <link rel="apple-touch-icon" href="https://pauhu.ai/assets/pauhu.ai_brand_mark_nega.png">
+    <link rel="shortcut icon" href="https://pauhu.ai/assets/pauhu.ai_brand_mark_nega.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: white;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #002855;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .header-content {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pauhu-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .customer-info {
+            text-align: right;
+        }
+
+        .customer-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: white;
+        }
+
+        .monitor-title {
+            font-size: 14px;
+            opacity: 0.8;
+            color: white;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Improved Demo Styles */
+        h1 {
+            color: #002855;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #002855;
+            margin-bottom: 24px;
+            margin-top: 32px;
+            font-size: 22px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .architecture-status {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .architecture-badge {
+            display: flex;
+            gap: 16px;
+        }
+
+        .bootstrap-anchor {
+            background: #002855;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .friend-count {
+            background: #e8f4f8;
+            color: #002855;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .robustness-indicator {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .robustness-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .robustness-value {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        /* Filters Section */
+        .filters {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 14px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        .filter-group input[type="date"] {
+            padding: 10px 12px;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .date-range input {
+            flex: 1;
+        }
+
+        .date-range span {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #002855;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #001f40;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #002855;
+            border: 1px solid #e5e5e5;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9fa;
+            border-color: #002855;
+        }
+
+        /* Results Section */
+        .results {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #002855;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .results-table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .results-table thead {
+            background: #002855;
+            color: white;
+        }
+
+        .results-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .results-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .results-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .results-table tbody tr:hover {
+            background: #e8f4f8;
+        }
+
+        .results-table tbody tr[data-source-url]:hover {
+            box-shadow: inset 0 0 0 2px #0066cc;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 24px !important;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-pagination {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-pagination:hover:not(:disabled) {
+            background: #f8f9fa;
+            border-color: #002855;
+        }
+
+        .btn-pagination:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* AI Processing Status */
+        .friends-status {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .senses-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .friend-card {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #002855;
+        }
+
+        .friend-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .friend-card h4 {
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .friend-role {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .friend-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .metric {
+            display: block;
+        }
+
+        .status-active {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .sense-capability {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .coordination-metrics {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .coordination-metrics h3 {
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            color: #002855;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 0;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 40px;
+            color: #666;
+        }
+
+        .footer p {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .filter-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .customer-info {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 12px;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .architecture-status {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .friends-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            .results-table {
+                font-size: 12px;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="https://pauhu.ai/assets/pauhu.ai_brand_mark_logo_nega.png" alt="Pauhu AI" class="pauhu-logo">
+            </div>
+            <div class="customer-info">
+                <div class="customer-name">VK - EU Tenders Electronic Daily</div>
+                <div class="monitor-title">Pauhu AI Tender Monitor System</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>VK TED Monitor - EU Tenders</h1>
+        <p class="subtitle">Real-time EU and country-specific tender tracking with official TED data</p>
+
+        <!-- Pauhu Dual Core Architecture Panel -->
+        <section class="dual-core-panel" style="background: linear-gradient(135deg, #002855 0%, #004080 100%); color: white; padding: 24px; border-radius: 8px; margin-bottom: 32px;">
+            <h2 style="color: white; margin-top: 0; margin-bottom: 16px;">Pauhu® Dual Core -arkkitehtuuri</h2>
+            <p style="opacity: 0.9; margin-bottom: 20px;">Kaksi älykästä mallia yhdessä - kielimalli ja semanttinen malli</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Language Core -->
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 6px; border-left: 4px solid #4CAF50;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span style="font-size: 28px;">🗣️</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px;">Kielimalli</h3>
+                            <div style="font-size: 12px; opacity: 0.8;">Language Model</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; line-height: 1.6;">
+                        <div style="margin-bottom: 8px;">
+                            <strong>Status:</strong> <span id="language-core-status" style="color: #4CAF50;">✅ Aktiivinen</span>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <strong>Kyvyt:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; opacity: 0.9;">
+                                <li>Käännös (100 kieltä)</li>
+                                <li>Yhteenvedot</li>
+                                <li>Tekstin tuottaminen</li>
+                            </ul>
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.7;" id="language-core-models">
+                            Mallit: m2m100, llama-3
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Semantic Core -->
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 6px; border-left: 4px solid #2196F3;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span style="font-size: 28px;">🧠</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px;">Semanttinen malli</h3>
+                            <div style="font-size: 12px; opacity: 0.8;">Semantic Model</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; line-height: 1.6;">
+                        <div style="margin-bottom: 8px;">
+                            <strong>Status:</strong> <span id="semantic-core-status" style="color: #4CAF50;">✅ Analysoi</span>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <strong>Kyvyt:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; opacity: 0.9;">
+                                <li>Semanttinen haku</li>
+                                <li>Luokittelu</li>
+                                <li>Yhteyksien tunnistus</li>
+                            </ul>
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.7;" id="semantic-core-info">
+                            Dokumentteja: <span id="docs-analyzed">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 13px; opacity: 0.8;">
+                <strong>Tietolähteet:</strong> Eurostat API, OECD API |
+                <strong>Viimeisin päivitys:</strong> <span id="dual-core-last-update">-</span> |
+                <strong>EU-vaatimustenmukainen:</strong> ✅ AI Act, GDPR, NIS2
+            </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filters">
+            <h2>Suodattimet</h2>
+
+            <div class="filter-grid">
+                <!-- Date Range Filter -->
+                <div class="filter-group">
+                    <label for="date-from">Aikaväli</label>
+                    <div class="date-range">
+                        <input type="date" id="date-from" name="date-from" value="2025-01-01">
+                        <span>-</span>
+                        <input type="date" id="date-to" name="date-to" value="2025-10-22">
+                    </div>
+                </div>
+
+                <!-- EU Country Filter -->
+                <div class="filter-group">
+                    <label for="country-filter">EU-jäsenvaltio</label>
+                    <select id="country-filter" name="country" multiple size="5">
+                        <option value="all" selected>Kaikki maat</option>
+                        <option value="FI">Suomi</option>
+                        <option value="SE">Ruotsi</option>
+                        <option value="DE">Saksa</option>
+                        <option value="FR">Ranska</option>
+                        <option value="NL">Alankomaat</option>
+                        <option value="DK">Tanska</option>
+                        <option value="PL">Puola</option>
+                        <option value="ES">Espanja</option>
+                        <option value="IT">Italia</option>
+                        <option value="AT">Itävalta</option>
+                        <option value="BE">Belgia</option>
+                        <option value="IE">Irlanti</option>
+                        <option value="other">Muut EU27</option>
+                    </select>
+                </div>
+
+                <!-- Document Type Filter -->
+                <div class="filter-group">
+                    <label for="doc-type-filter">Dokumenttityyppi</label>
+                    <select id="doc-type-filter" name="doc-type" multiple size="5">
+                        <option value="all" selected>Kaikki tyypit</option>
+                        <option value="directive">EU-direktiivi</option>
+                        <option value="regulation">EU-asetus</option>
+                        <option value="decision">EU-päätös</option>
+                        <option value="opinion">Komitean lausunto</option>
+                        <option value="report">Edistymisraportti</option>
+                        <option value="communication">Komission tiedonanto</option>
+                    </select>
+                </div>
+
+                <!-- Circular Economy Topic Filter -->
+                <div class="filter-group">
+                    <label for="topic-filter">Kiertotalouden aihe</label>
+                    <select id="topic-filter" name="topic" multiple size="5">
+                        <option value="all" selected>All Topics</option>
+                        <option value="material">Circular Material Use</option>
+                        <option value="waste">Waste Management & Recycling</option>
+                        <option value="footprint">Material Footprint</option>
+                        <option value="employment">Circular Economy Employment</option>
+                    </select>
+                </div>
+
+                <!-- Industry Sector Filter -->
+                <div class="filter-group">
+                    <label for="sector-filter">Industry Sector</label>
+                    <select id="sector-filter" name="sector" multiple size="5">
+                        <option value="all" selected>All Sectors</option>
+                        <option value="circular-economy">Circular Economy</option>
+                    </select>
+                </div>
+
+                <!-- Search Filter -->
+                <div class="filter-group">
+                    <label for="search-filter">Search Results</label>
+                    <input type="text" id="search-filter" name="search" placeholder="Search by title, country, indicator...">
+                </div>
+
+                <!-- Language Filter (Hidden - data is English only from Eurostat/OECD) -->
+                <div class="filter-group" style="display: none;">
+                    <label for="language-filter">Language (M2M-100 Translation)</label>
+                    <select id="language-filter" name="language">
+                        <option value="en" selected>English</option>
+                        <option value="fi">Finnish (Suomi)</option>
+                        <option value="sv">Swedish (Svenska)</option>
+                        <option value="de">German (Deutsch)</option>
+                        <option value="fr">French (Français)</option>
+                        <option value="es">Spanish (Español)</option>
+                        <option value="it">Italian (Italiano)</option>
+                        <option value="pl">Polish (Polski)</option>
+                        <option value="nl">Dutch (Nederlands)</option>
+                        <option value="auto">Auto-Detect</option>
+                    </select>
+                </div>
+
+                <!-- Compliance Status Filter -->
+                <div class="filter-group">
+                    <label for="compliance-filter">Vaatimustenmukaisuus</label>
+                    <select id="compliance-filter" name="compliance">
+                        <option value="all" selected>Kaikki tilat</option>
+                        <option value="compliant">Compliant</option>
+                        <option value="pending">Pending Review</option>
+                        <option value="action-required">Action Required</option>
+                        <option value="non-compliant">Non-Compliant</option>
+                    </select>
+                </div>
+
+                <!-- EuroVoc Domain Filter (All 21) -->
+                <div class="filter-group">
+                    <label for="eurovoc-filter">EuroVoc Domain (21)</label>
+                    <select id="eurovoc-filter" name="eurovoc" multiple size="8">
+                        <option value="all" selected>All Domains</option>
+                        <option value="01">01 Politics</option>
+                        <option value="02">02 International Relations</option>
+                        <option value="04">04 Politics and Public Safety</option>
+                        <option value="08">08 International Organisations</option>
+                        <option value="12">12 Law</option>
+                        <option value="16">16 Economics</option>
+                        <option value="20">20 Trade</option>
+                        <option value="24">24 Finance</option>
+                        <option value="28">28 Social Questions</option>
+                        <option value="32">32 Education and Communications</option>
+                        <option value="36">36 Science</option>
+                        <option value="40">40 Business and Competition</option>
+                        <option value="44">44 Employment and Working Conditions</option>
+                        <option value="48">48 Transport</option>
+                        <option value="52">52 Environment</option>
+                        <option value="56">56 Agriculture, Forestry and Fisheries</option>
+                        <option value="60">60 Agri-foodstuffs</option>
+                        <option value="64">64 Production, Technology and Research</option>
+                        <option value="66">66 Energy</option>
+                        <option value="68">68 Industry</option>
+                        <option value="76">76 Geography</option>
+                    </select>
+                </div>
+
+                <!-- Eurostat Theme Filter (All 9) -->
+                <div class="filter-group">
+                    <label for="eurostat-filter">Eurostat Theme (9)</label>
+                    <select id="eurostat-filter" name="eurostat" multiple size="8">
+                        <option value="all" selected>All Themes</option>
+                        <option value="general">General and Regional Statistics</option>
+                        <option value="economy">Economy and Finance</option>
+                        <option value="population">Population and Social Conditions</option>
+                        <option value="industry">Industry, Trade and Services</option>
+                        <option value="agriculture">Agriculture and Fisheries</option>
+                        <option value="trade">International Trade</option>
+                        <option value="transport">Transport</option>
+                        <option value="environment">Environment and Energy</option>
+                        <option value="science">Science, Technology and Digital Society</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Filter Actions -->
+            <div class="filter-actions">
+                <button id="apply-filters" class="btn-primary">Käytä suodattimia</button>
+                <button id="reset-filters" class="btn-secondary">Nollaa kaikki</button>
+                <button id="export-results" class="btn-secondary">Vie tiedot (CSV)</button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results">
+            <h2>Seurannan tulokset</h2>
+
+            <!-- Summary Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="total-documents">1,247</h3>
+                    <p>Dokumentit yhteensä</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="active-directives">23</h3>
+                    <p>Aktiiviset direktiivit</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="compliance-rate">94.2%</h3>
+                    <p>Vaatimustenmukaisuus</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="action-items">12</h3>
+                    <p>Toimenpiteitä vaativat</p>
+                </div>
+            </div>
+
+            <!-- Semantic Analysis Box for Decision Maker Support -->
+            <div id="semantic-analysis-box" style="background: #f0f7ff; border: 1px solid #0066cc; border-radius: 12px; padding: 20px; margin: 24px 0; display: none;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <span style="font-size: 24px;">🧠</span>
+                    <h3 style="margin: 0; color: #002855; font-size: 18px;">Semantic Analysis for Decision Makers</h3>
+                </div>
+                <div id="semantic-insights" style="color: #333; line-height: 1.6; font-size: 14px;">
+                    <!-- Insights will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="results-table-container">
+                <table class="results-table" id="results-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Country</th>
+                            <th>Document Type</th>
+                            <th>Topic</th>
+                            <th>Title</th>
+                            <th>Compliance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-tbody">
+                        <!-- Results will be populated by JavaScript -->
+                        <tr>
+                            <td colspan="7" class="loading">Loading results...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button id="prev-page" class="btn-pagination" disabled>Previous</button>
+                <span id="page-info">Page 1 of 10</span>
+                <button id="next-page" class="btn-pagination">Next</button>
+            </div>
+        </section>
+
+        <!-- AI Processing Status -->
+        <section class="friends-status">
+            <h2>AI Processing Status</h2>
+            <p class="senses-description">Powered by Pauhu AI infrastructure for EU compliance monitoring</p>
+            <div class="friends-grid">
+                <div class="friend-card" data-friend="language">
+                    <div class="friend-icon">💬</div>
+                    <h4>Language Processing</h4>
+                    <p class="friend-role">Text Analysis</p>
+                    <div class="friend-metrics">
+                        <span class="metric">Status: <span class="status-active">Active</span></span>
+                        <span class="metric">Latency: <span id="language-latency">18ms</span></span>
+                        <span class="metric">Load: <span id="language-load">45%</span></span>
+                    </div>
+                    <p class="sense-capability">Text understanding and semantic analysis of EU documents</p>
+                </div>
+
+                <div class="friend-card" data-friend="intuition">
+                    <div class="friend-icon">🧠</div>
+                    <h4>Semantic Analysis</h4>
+                    <p class="friend-role">Document Matching</p>
+                    <div class="friend-metrics">
+                        <span class="metric">Status: <span class="status-active">Active</span></span>
+                        <span class="metric">Latency: <span id="intuition-latency">12ms</span></span>
+                        <span class="metric">Load: <span id="intuition-load">32%</span></span>
+                    </div>
+                    <p class="sense-capability">Semantic similarity and document matching capabilities</p>
+                </div>
+
+                <div class="friend-card" data-friend="knowledge">
+                    <div class="friend-icon">📚</div>
+                    <h4>Compliance Engine</h4>
+                    <p class="friend-role">Classification & Decision</p>
+                    <div class="friend-metrics">
+                        <span class="metric">Status: <span class="status-active">Active</span></span>
+                        <span class="metric">Latency: <span id="knowledge-latency">21ms</span></span>
+                        <span class="metric">Load: <span id="knowledge-load">58%</span></span>
+                    </div>
+                    <p class="sense-capability">Compliance classification and decision-making analysis</p>
+                </div>
+            </div>
+
+            <!-- System Performance Metrics -->
+            <div class="coordination-metrics">
+                <h3>System Performance Monitoring</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-label">System Reliability:</span>
+                        <span class="metric-value" id="h2-robustness">98.7%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Processing Efficiency:</span>
+                        <span class="metric-value" id="rob-per-friend">94.2%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Error Rate:</span>
+                        <span class="metric-value" id="disagreement">0.043%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Update Interval:</span>
+                        <span class="metric-value" id="breathing-cycle">500ms</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>EU & OECD Circular Economy Monitor - Pauhu AI</p>
+            <p>© 2025 Pauhu. All rights reserved. Proprietary technology.</p>
+        </footer>
+    </div>
+
+    <!-- Real Data Connectors -->
+    <script src="eurostat-api-connector.js?v=20251023"></script>
+    <script src="oecd-environmental-connector.js?v=20251023"></script>
+    <script src="enhanced-semantic-analysis.js?v=20251023"></script>
+    <script src="pauhu-production-api.js?v=20251023"></script>
+
+    <!-- Pauhu AI Client - Connects to Cloudflare Workers AI -->
+    <script src="pauhu-ai-client.js?v=20251023"></script>
+
+    <!-- Demo Application (replaces mock data with real connectors) -->
+    <script src="demo.js?v=20251023-debug-search"></script>
+</body>
+</html>
