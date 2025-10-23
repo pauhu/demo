@@ -131,19 +131,36 @@ function formatEurostatData(data, indicator) {
             timeReverseMap[idx] = year;
         });
 
-        // Get dimension sizes for calculating multi-dimensional indices
+        // Get dimension sizes for index conversion
         const dimSize = data.dimension.size || [1, 1, Object.keys(geoIndex).length, Object.keys(timeIndex).length];
 
         // Process each value
         Object.entries(data.value).forEach(([obsKey, obsValue]) => {
             if (obsValue === null || obsValue === undefined) return;
 
-            // Parse the observation key to get dimension indices
-            const indices = obsKey.split(':').map(Number);
+            // Convert linear index to multi-dimensional indices
+            // Eurostat returns simple numeric keys that need to be converted
+            let geoIdx, timeIdx;
 
-            // For Eurostat CEI data: [freq_idx, unit_idx, geo_idx, time_idx]
-            let geoIdx = 2 < indices.length ? indices[2] : 0;
-            let timeIdx = 3 < indices.length ? indices[3] : 0;
+            if (obsKey.includes(':')) {
+                // Colon-delimited format (less common)
+                const indices = obsKey.split(':').map(Number);
+                geoIdx = indices[2] || 0;
+                timeIdx = indices[3] || 0;
+            } else {
+                // Linear index format (more common) - convert to multi-dimensional
+                const linearIdx = parseInt(obsKey);
+                const strideToDimension = {
+                    freq: dimSize[1] * dimSize[2] * dimSize[3],
+                    unit: dimSize[2] * dimSize[3],
+                    geo: dimSize[3],
+                    time: 1
+                };
+
+                timeIdx = linearIdx % dimSize[3];
+                geoIdx = Math.floor(linearIdx / dimSize[3]) % dimSize[2];
+                // freq_idx and unit_idx are always 0 for this dataset
+            }
 
             const geoCode = geoReverseMap[geoIdx] || 'EU27_2020';
             const year = timeReverseMap[timeIdx] || '2023';
