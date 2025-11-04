@@ -1,5 +1,5 @@
 /**
- * EU-Tutka Complete L1-L5 Implementation
+ * EU-tutka Complete L1-L5 Implementation
  * Edge computing + Workers AI
  * Privacy-preserving, autonomous compliance system
  */
@@ -26,7 +26,7 @@ app.use('*', cors({
 // Root endpoint - quick health check
 app.get('/', (c) => {
   return c.json({
-    name: 'EU-Tutka L1-L6 Compliance System',
+    name: 'EU-tutka L1-L6 Compliance System',
     status: 'operational',
     levels: [
       'L1-L5: Hierarchical Insights',
