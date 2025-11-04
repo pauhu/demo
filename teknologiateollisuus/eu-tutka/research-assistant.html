@@ -11,7 +11,6 @@
     <link rel="apple-touch-icon" href="https://pauhu.ai/assets/pauhu.ai_brand_mark_nega.png">
     <link rel="shortcut icon" href="https://pauhu.ai/assets/pauhu.ai_brand_mark_nega.png">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -1108,7 +1107,6 @@
                     <div class="mini-card-header">
                         <div class="mini-card-icon">📚</div>
                         <div class="mini-card-name">EUROVOC</div>
-                        <div class="mini-card-count" id="eurovocCount">0</div>
                     </div>
                     <div class="mini-card-description">Multilingual Thesaurus - Semantic terms and concepts for EU policy areas</div>
                     <div class="mini-card-status inactive">○ Semantic search available</div>
@@ -1130,7 +1128,6 @@
                     <div class="mini-card-header">
                         <div class="mini-card-icon">💼</div>
                         <div class="mini-card-name">TED</div>
-                        <div class="mini-card-count" id="tedCount">0</div>
                     </div>
                     <div class="mini-card-description">Public Procurement - EU tender opportunities for sustainable and circular products</div>
                     <div class="mini-card-status inactive">○ Search on demand</div>
@@ -1164,8 +1161,8 @@
 
     <script>
         // API Configuration
-        const API_URL = 'https://eu-tutka-compliance.pauhu.workers.dev/api/v1/insights';
-        const API_BASE_URL = 'https://eu-tutka-compliance.pauhu.workers.dev';
+        const API_URL = 'https://api.pauhu.ai/api/v1/insights';
+        const API_BASE_URL = 'https://api.pauhu.ai';
 
         const searchInput = document.getElementById('searchInput');
         const searchButton = document.getElementById('searchButton');
